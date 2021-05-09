@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# This script looks for the POSCAR file. It reads the first line for the list of elements
+# Then it searchs for the elements in the molecular foundry database. 
+# It's assumed that $VASP_PP contains the path to VASP pseudo potentials
+# Input lists
+
+if [ -z "$VASP_PP" ]
+then
+	export VASP_PP='/global/home/groups/nano/software/sl-7.x86_64/vasp/Potentials'
+fi
+
+if [ -z "$1" ]
+then
+	FUNCTIONAL=PBE
+else
+	if [ "$1" == "-h" ]
+	then
+		printf "This script goes through the the first line of the POSCAR file and read the list of elements.\n"
+		printf "The first input variable specifies the functional. and the flavour of the pseudopotentials \n" 
+		printf "need to be specified in the POSCAR file as well. The script is going to look for the \n"
+		printf "sub-folder of the same name\n"
+		exit
+	else
+		FUNCTIONAL=$1
+		if [ ! -d  $VASP_PP'/'$FUNCTIONAL ] 
+		then
+			printf "Functional doesn't exist in database\n"
+			exit
+		fi
+	fi
+fi
+
+# POTCAR generation
+echo "POTCAR generation initiates"
+rm -f POTCAR
+
+# Read the elements
+ELEMENTS=$(head -1 POSCAR)
+
+for ii in ${ELEMENTS} 
+do
+	if [ -f $VASP_PP'/'$FUNCTIONAL'/'$ii'/'POTCAR ]
+	then
+		cat $VASP_PP'/'$FUNCTIONAL'/'$ii/POTCAR >> POTCAR
+		echo $ii "successfully imported"
+	else
+	 	echo $ii/POTCAR " doesn't exist in " $VASP_PP'/'$FUNCTIONAL
+	fi	
+done

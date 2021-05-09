@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ -z "$1" ]
+then
+	echo "This script generates the subspace for TRNSS"
+	echo "calculations in QCHEM. It assumes orbitals  "
+	echo "1 to N (the only input param.) form the     "
+	echo "subspace. If there are two inputs then they "
+	echo "give the range of occupied orbitals included"
+	exit
+fi
+
+if [ -z "$2" ]
+then
+	MIN=1
+	MAX=$1
+else
+	MIN=$1
+	MAX=$2
+fi
+
+echo "\$solute"
+
+for ((ii=$MIN; ii<=$MAX; ii=ii+1)) 
+do
+	echo $ii
+done
+
+echo "\$end"

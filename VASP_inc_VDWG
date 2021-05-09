@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ -z "$1" ]
+then
+	echo "The path to  the database is needed"
+	echo "The first two rows are essetially comments"
+	echo "Afer that, the columns are, atomic symbol, C6 and R0"
+	echo "The atomic symbol must be the same as the ones in POSCAR"
+	exit
+fi
+
+C6STRING='VDW_C6='
+R0STRING='VDW_R0='
+
+ELEMENTS=`sed '2,$d' POSCAR`
+
+for ii in $ELEMENTS
+do
+	C6STRING=$C6STRING`awk "/\<$ii\>/"'{print $2}' $1`' '
+	R0STRING=$R0STRING`awk "/\<$ii\>/"'{print $3}' $1`' '
+done
+
+sed -i '/VDW_C6/d' INCAR
+sed -i '/VDW_R0/d' INCAR
+
+echo $C6STRING >> INCAR # I do it automatically to mitigate any accidental deletion of the entire INCAR
+echo $R0STRING >> INCAR 
